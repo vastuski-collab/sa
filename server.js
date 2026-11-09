@@ -111,6 +111,7 @@ footer a{color:#f7b731}
 .success-msg{display:none;text-align:center;padding:1rem;color:#2e7d32;font-weight:600}
 @media(max-width:600px){.search-bar{flex-direction:column}.stat-bar{gap:1rem}}
 </style>
+<meta name="google-site-verification" content="caV8L_sobLIVDDbS_WFYoT7SftALcyf5h0wkWyxKkmY" />
 </head>
 <body>
 <nav>
