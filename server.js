@@ -11,44 +11,46 @@ app.use(express.static('public'));
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const JOBS_PER_PAGE = 20;
 
-// ── AD HELPERS (iframe-based, safe for multiple ads per page) ────────────────
+// ── AD HELPERS (atOptions + script method) ───────────────────────────────────
 const AD_KEY_728 = 'b835e08ee14ee306d104e35d716f2465';
 const AD_KEY_468 = '17b6317b58e6d344819ae487f0ee0d05';
 const AD_BASE = 'https://bicea.org/22/';
 
-function adIframe(key, width, height) {
+function adScript(key, width, height) {
   return `
 <div style="text-align:center; margin:8px 0;">
-  <iframe
-    src="${AD_BASE}${key}"
-    width="${width}"
-    height="${height}"
-    frameborder="0"
-    scrolling="no"
-    style="border:none; max-width:100%; display:inline-block;">
-  </iframe>
+  <script type="text/javascript" data-cfasync="false">
+    atOptions = {
+      'key' : '${key}',
+      'format' : 'iframe',
+      'height' : ${height},
+      'width' : ${width},
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" data-cfasync="false" src="${AD_BASE}${key}"></script>
 </div>`;
 }
 
 function adTop() {
   return `
 <div style="text-align:center; padding:12px 0; background:#fff; border-bottom:1px solid #eee;">
-  ${adIframe(AD_KEY_728, 728, 90)}
-  ${adIframe(AD_KEY_468, 468, 60)}
+  ${adScript(AD_KEY_728, 728, 90)}
+  ${adScript(AD_KEY_468, 468, 60)}
 </div>`;
 }
 
 function adMiddle() {
   return `
 <div style="text-align:center; padding:12px 0; background:#fff; border-top:1px solid #eee; border-bottom:1px solid #eee; margin:1rem 0;">
-  ${adIframe(AD_KEY_728, 728, 90)}
+  ${adScript(AD_KEY_728, 728, 90)}
 </div>`;
 }
 
 function adAboveApply() {
   return `
 <div style="text-align:center; padding:8px 0; margin-bottom:12px;">
-  ${adIframe(AD_KEY_728, 728, 90)}
+  ${adScript(AD_KEY_728, 728, 90)}
 </div>`;
 }
 
