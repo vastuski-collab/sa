@@ -173,7 +173,7 @@ ${bodyContent}
 </footer>
 <script>
 function openApply(title){
-  window.location.href='https://as.nigeriashop.great-site.net/pages/job-application';
+  window.location.href='https://as.nigeriashop.great-site.net/pages/apply';
 }
 </script>
 </body>
