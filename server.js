@@ -11,6 +11,47 @@ app.use(express.static('public'));
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const JOBS_PER_PAGE = 20;
 
+// ── AD HELPERS (iframe-based, safe for multiple ads per page) ────────────────
+const AD_KEY_728 = 'b835e08ee14ee306d104e35d716f2465';
+const AD_KEY_468 = '17b6317b58e6d344819ae487f0ee0d05';
+const AD_BASE = 'https://bicea.org/22/';
+
+function adIframe(key, width, height) {
+  return `
+<div style="text-align:center; margin:8px 0;">
+  <iframe
+    src="${AD_BASE}${key}"
+    width="${width}"
+    height="${height}"
+    frameborder="0"
+    scrolling="no"
+    style="border:none; max-width:100%; display:inline-block;">
+  </iframe>
+</div>`;
+}
+
+function adTop() {
+  return `
+<div style="text-align:center; padding:12px 0; background:#fff; border-bottom:1px solid #eee;">
+  ${adIframe(AD_KEY_728, 728, 90)}
+  ${adIframe(AD_KEY_468, 468, 60)}
+</div>`;
+}
+
+function adMiddle() {
+  return `
+<div style="text-align:center; padding:12px 0; background:#fff; border-top:1px solid #eee; border-bottom:1px solid #eee; margin:1rem 0;">
+  ${adIframe(AD_KEY_728, 728, 90)}
+</div>`;
+}
+
+function adAboveApply() {
+  return `
+<div style="text-align:center; padding:8px 0; margin-bottom:12px;">
+  ${adIframe(AD_KEY_728, 728, 90)}
+</div>`;
+}
+
 function renderHTML({ title, meta, bodyContent, schema }) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -142,7 +183,7 @@ app.get('/', (req, res) => {
   const featuredIds = [1, 50001, 2, 50002, 3, 50003, 10000, 60000];
   const featuredJobs = featuredIds.map(id => getJobData(id));
 
-  const cards = featuredJobs.map(job => `
+  const makeCard = (job) => `
 <a href="/jobs/${job.id}" style="display:block">
 <div class="job-card">
   <div class="card-header">
@@ -166,7 +207,9 @@ app.get('/', (req, res) => {
     <button class="btn-apply" onclick="event.preventDefault();openApply('${job.title.replace(/'/g, "\\'")} at ${job.company.replace(/'/g, "\\'")}')">Apply Now</button>
   </div>
 </div>
-</a>`).join('');
+</a>`;
+
+  const cards = featuredJobs.map(makeCard).join('');
 
   const websiteSchema = {
     "@context": "https://schema.org",
@@ -182,6 +225,7 @@ app.get('/', (req, res) => {
   };
 
   const body = `
+${adTop()}
 <div class="hero">
   <h1>Find Your Dream Job in <span class="accent">South Africa</span></h1>
   <p>100,000 verified job listings — remote & on-site — across all 9 provinces</p>
@@ -211,6 +255,7 @@ app.get('/', (req, res) => {
   <h2 style="margin-bottom:1rem;font-size:1.2rem">Featured Jobs</h2>
   <div class="page-grid">${cards}</div>
   <div style="text-align:center;margin-top:2rem">
+    ${adAboveApply()}
     <a href="/jobs" style="display:inline-block;padding:.85rem 2.5rem;background:#1a1a2e;color:#fff;border-radius:10px;font-weight:700">Browse All 100,000 Jobs →</a>
   </div>
 </div>`;
@@ -245,7 +290,7 @@ app.get('/jobs', (req, res) => {
   const jobs = jobIds.map(id => getJobData(id));
   const totalPages = Math.ceil(TOTAL_JOBS / JOBS_PER_PAGE);
 
-  const cards = jobs.map(job => `
+  const makeCard = (job) => `
 <a href="/jobs/${job.id}" style="display:block">
 <div class="job-card">
   <div class="card-header">
@@ -270,7 +315,11 @@ app.get('/jobs', (req, res) => {
     <button class="btn-apply" onclick="event.preventDefault();openApply('${job.title.replace(/'/g, "\\'")} at ${job.company.replace(/'/g, "\\'")}')">Apply Now</button>
   </div>
 </div>
-</a>`).join('');
+</a>`;
+
+  const allCards = jobs.map(makeCard);
+  const topHalf = allCards.slice(0, Math.ceil(allCards.length / 2)).join('');
+  const bottomHalf = allCards.slice(Math.ceil(allCards.length / 2)).join('');
 
   const pages = [];
   if (page > 1) pages.push(`<a href="/jobs?page=${page - 1}&type=${typeFilter}">← Prev</a>`);
@@ -286,6 +335,7 @@ app.get('/jobs', (req, res) => {
   if (page < totalPages) pages.push(`<a href="/jobs?page=${page + 1}&type=${typeFilter}">Next →</a>`);
 
   const body = `
+${adTop()}
 <div class="hero" style="padding:1.75rem 1.5rem">
   <h1 style="font-size:1.8rem">Browse <span class="accent">100,000 Jobs</span> in South Africa</h1>
   <p>Showing page ${page.toLocaleString()} of ${totalPages.toLocaleString()}</p>
@@ -296,7 +346,9 @@ app.get('/jobs', (req, res) => {
   <a href="/jobs?type=onsite"><span class="filter-chip ${typeFilter==='onsite'?'active':''}">🏢 On-site (50,000)</span></a>
 </div>
 <div class="container">
-  <div class="page-grid">${cards}</div>
+  <div class="page-grid">${topHalf}</div>
+  ${adMiddle()}
+  <div class="page-grid">${bottomHalf}</div>
   <div class="pagination">${pages.join('')}</div>
 </div>`;
 
@@ -342,6 +394,7 @@ app.get('/jobs/:id', (req, res) => {
 </a>`).join('');
 
   const body = `
+${adTop()}
 <div class="container">
   <div class="breadcrumb">
     <a href="/">Home</a> › <a href="/jobs">Jobs</a> › <a href="/jobs?type=${job.isRemote ? 'remote' : 'onsite'}">${job.isRemote ? 'Remote' : 'On-site'}</a> › ${job.title}
@@ -367,6 +420,7 @@ app.get('/jobs/:id', (req, res) => {
     </div>
     <div class="detail-body">${job.description}</div>
     <div class="apply-section">
+      ${adAboveApply()}
       <h3>Ready to Apply?</h3>
       <p>Submit your application for <strong>${job.title}</strong> at <strong>${job.company}</strong> — takes less than 2 minutes</p>
       <button class="btn-apply-big" onclick="openApply('${job.title.replace(/'/g, "\\'")} at ${job.company.replace(/'/g, "\\'")}')">
@@ -374,6 +428,8 @@ app.get('/jobs/:id', (req, res) => {
       </button>
     </div>
   </div>
+
+  ${adMiddle()}
 
   <div style="margin-top:2rem">
     <h2 style="font-size:1.1rem;margin-bottom:1rem">Similar Jobs You Might Like</h2>
@@ -421,6 +477,7 @@ app.get('/sitemap-:num.xml', (req, res) => {
 // ── SITEMAP HTML PAGE ─────────────────────────────────────────────────────────
 app.get('/sitemap', (req, res) => {
   const body = `
+${adTop()}
 <div class="container">
   <h1 style="margin-bottom:1rem">Sitemap — web-production-d478e.up.railway.app</h1>
   <div class="info-box">📌 100,000 individual job pages + XML sitemaps for all search engines</div>
