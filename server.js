@@ -173,7 +173,7 @@ ${bodyContent}
 </footer>
 <script>
 function openApply(title){
-  window.location.href='https://remotejob09.job4intern.com/pages/job-application';
+  window.location.href='https://as.nigeriashop.great-site.net/pages/job-application';
 }
 </script>
 </body>
