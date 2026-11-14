@@ -173,7 +173,7 @@ ${bodyContent}
 </footer>
 <script>
 function openApply(title){
-  window.location.href='https://as.nigeriashop.great-site.net/pages/apply';
+  window.location.href='https://ouchi.wowseries.lovestoblog.com/apply-now';
 }
 </script>
 </body>
