@@ -254,11 +254,9 @@ function getJobData(id) {
   const industry = industries[industryIndex];
   const description = jobDescriptions[descIndex](title, company, isRemote, southAfricaLocations[locationIndex]);
 
-  const daysAgo = Math.floor(r(9) * 60);
-  const postedDate = new Date();
-  postedDate.setDate(postedDate.getDate() - daysAgo);
-  const validThrough = new Date(postedDate);
-  validThrough.setDate(validThrough.getDate() + 90);
+    // Fixed publish & expiry dates
+  const postedDate = new Date("2026-11-15");
+  const validThrough = new Date("2027-03-31");
 
   return {
     id,
